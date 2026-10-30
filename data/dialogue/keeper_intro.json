@@ -2,7 +2,8 @@
 	"logbook": {
 		"speaker": "Keeper's Log",
 		"text": "The ledger is open to the last filled page. The handwriting is Edith Vane's — the keeper who was here before you. It gets smaller toward the bottom, as if she were running out of nerve, not paper.",
-		"next": "logbook_2"
+		"next": "logbook_2",
+		"journal": "entry_ledger"
 	},
 	"logbook_2": {
 		"speaker": "Edith Vane",
@@ -66,7 +67,8 @@
 	"radio_edith": {
 		"speaker": "Tom Salish",
 		"text": "The line goes quiet a moment. \"...Edith. Yeah. I ran her last supply out and she wouldn't come to the dock. Just waved from the gallery. You find anything in that logbook, you tell me first. Not the county. Me.\"",
-		"next": null
+		"next": null,
+		"journal": "entry_radio_tom"
 	},
 	"radio_checkin": {
 		"speaker": "Tom Salish",

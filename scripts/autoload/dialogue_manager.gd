@@ -5,8 +5,9 @@ extends Node
 ## Each node:
 ##   { "speaker": String, "text": String,
 ##     "next": String|null,                     # linear node; null ends the graph
-##     "choices": [ {"text": String, "next": String, "set_flag": {..}} ],
-##     "set_flag": { "flag_name": value } }      # applied when the node is entered
+##     "choices": [ {"text": String, "next": String, "set_flag": {..}, "journal": id} ],
+##     "set_flag": { "flag_name": value },       # applied when the node is entered
+##     "journal": String | [String] }            # journal entries discovered on entry
 ##
 ## UI (dialogue_box.gd) listens to these signals; it does not read the graph.
 
@@ -53,7 +54,7 @@ func choose(index: int) -> void:
 	if index < 0 or index >= choices.size():
 		return
 	var choice: Dictionary = choices[index]
-	_apply_flags(choice.get("set_flag", {}))
+	_apply_hooks(choice)
 	var next: Variant = choice.get("next", null)
 	if next == null:
 		_finish()
@@ -68,7 +69,7 @@ func _goto(id: String) -> void:
 		return
 	_current_id = id
 	var node: Dictionary = _graph[id]
-	_apply_flags(node.get("set_flag", {}))
+	_apply_hooks(node)
 	line_shown.emit(
 		str(node.get("speaker", "")),
 		str(node.get("text", "")),
@@ -76,9 +77,18 @@ func _goto(id: String) -> void:
 	)
 
 
-func _apply_flags(dict: Dictionary) -> void:
-	for key in dict:
-		GameState.set_flag(str(key), dict[key])
+## Side effects shared by nodes and choices: "set_flag", then "journal".
+func _apply_hooks(source: Dictionary) -> void:
+	var flags_to_set: Dictionary = source.get("set_flag", {})
+	for key in flags_to_set:
+		GameState.set_flag(str(key), flags_to_set[key])
+
+	var entries: Variant = source.get("journal", null)
+	if typeof(entries) == TYPE_STRING:
+		Journal.discover(entries)
+	elif typeof(entries) == TYPE_ARRAY:
+		for entry in entries:
+			Journal.discover(str(entry))
 
 
 func _finish() -> void:

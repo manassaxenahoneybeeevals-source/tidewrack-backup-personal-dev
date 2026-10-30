@@ -1,26 +1,26 @@
 extends Node
-## Journal — discovered-logs system (Public Demo scaffold).
+## Journal — discovered-logs system. Autoloaded as `Journal`.
 ##
-## Meant to be autoloaded as `Journal`. As the player examines objects, the
-## dialogue "set_flag" hooks will record discovered entries here; the journal
-## screen renders them. Scaffold only: storage + a couple of helpers, no UI yet.
+## Entries live in `GameState.journal` so they are saved and loaded with the
+## story flags; this node is the gameplay-facing API. Dialogue graphs add
+## entries with a "journal" hook on a node or choice (see DialogueManager).
+## Reader UI is still to come.
 
 signal entry_added(id: String)
 
-var _entries: Array[String] = []
 
-
+## Record a discovered log. No-op for empty ids and repeats.
 func discover(id: String) -> void:
-	if id in _entries:
+	if id.is_empty() or id in GameState.journal:
 		return
-	_entries.append(id)
+	GameState.journal.append(id)
+	GameState.state_changed.emit()
 	entry_added.emit(id)
 
 
 func entries() -> Array[String]:
-	return _entries.duplicate()
+	return GameState.journal.duplicate()
 
 
 func has(id: String) -> bool:
-	return id in _entries
-# TODO(demo): persist entries through GameState.save_game() and add the reader UI.
+	return id in GameState.journal
